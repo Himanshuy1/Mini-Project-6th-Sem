@@ -1,0 +1,172 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;500;600&display=swap');
+
+:root {
+  --bg-dark: #090a0f;
+  --bg-panel: rgba(15, 17, 26, 0.7);
+  --bg-panel-solid: #0f111a;
+  --bg-panel-border: rgba(255, 255, 255, 0.08);
+  
+  --text-main: #e2e8f0;
+  --text-dim: #94a3b8;
+  --text-neon-green: #00ff88;
+  --text-neon-red: #ff3366;
+  --text-neon-amber: #ffaa00;
+
+  --accent-green: #00ff88;
+  --accent-red: #ff3366;
+
+  --font-hud: 'Space Mono', monospace;
+  --font-body: 'Inter', sans-serif;
+  
+  --z-map: 0;
+  --z-hud: 10;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  scrollbar-width: thin;
+  scrollbar-color: var(--text-dim) var(--bg-dark);
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--bg-dark);
+  color: var(--text-main);
+  overflow-y: auto; /* Enable vertical scrolling */
+  overflow-x: hidden;
+}
+
+/* Glassmorphism Classes */
+.glass-panel {
+  background: var(--bg-panel);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--bg-panel-border);
+  border-radius: 8px;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+}
+
+.hud-text {
+  font-family: var(--font-hud);
+  text-transform: uppercase;
+}
+
+.text-green { color: var(--text-neon-green); }
+.text-red { color: var(--text-neon-red); }
+.text-amber { color: var(--text-neon-amber); }
+
+/* Blinking dot animation */
+.blink {
+  animation: blinker 1.5s linear infinite;
+}
+@keyframes blinker {
+  50% { opacity: 0; }
+}
+
+/* Layout overrides */
+.app-container {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+}
+
+/* Custom Map Popup Overrides for Leaflet */
+.leaflet-popup-content-wrapper, .leaflet-popup-tip {
+  background: var(--bg-panel-solid) !important;
+  color: var(--text-main) !important;
+  border: 1px solid var(--bg-panel-border);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+}
+
+.leaflet-container {
+  background: var(--bg-dark) !important;
+  outline: none;
+}
+
+/* Map Pulsing Effects */
+.pulse-red {
+  animation: pulse-red 2s infinite;
+}
+
+@keyframes pulse-red {
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 51, 102, 0.7); }
+  70% { transform: scale(1); box-shadow: 0 0 0 15px rgba(255, 51, 102, 0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 51, 102, 0); }
+}
+
+.pulse-amber {
+  animation: pulse-amber 2s infinite;
+}
+
+@keyframes pulse-amber {
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 170, 0, 0.7); }
+  70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(255, 170, 0, 0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 170, 0, 0); }
+}
+
+.map-glow {
+  filter: drop-shadow(0 0 6px var(--color-glow));
+}
+
+/* Tactical CRT Overlays */
+.crt-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+  background-size: 100% 3px, 3px 100%;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.2;
+}
+
+.scanline {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(to bottom, transparent, rgba(0, 255, 136, 0.05), transparent);
+  background-size: 100% 200%;
+  animation: scan 8s linear infinite;
+  pointer-events: none;
+  z-index: 10000;
+}
+
+@keyframes scan {
+  0% { background-position: 0 -100%; }
+  100% { background-position: 0 100%; }
+}
+
+.tactical-frame {
+  position: fixed;
+  inset: 10px;
+  border: 1px solid rgba(0, 255, 136, 0.1);
+  pointer-events: none;
+  z-index: 10001;
+}
+
+.tactical-frame::before, .tactical-frame::after {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-color: var(--text-neon-green);
+  border-style: solid;
+}
+
+.tactical-frame::before { top: 0; left: 0; border-width: 2px 0 0 2px; }
+.tactical-frame::after { bottom: 0; right: 0; border-width: 0 2px 2px 0; }
+
+/* Utility: Hide Scrollbar */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}

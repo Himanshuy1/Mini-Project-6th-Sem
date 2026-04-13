@@ -1,0 +1,45 @@
+========================================================
+TECHNOLOGY STACK: GLOBAL NEWS AI (WORLD MONITOR HUD)
+========================================================
+
+1. FRONTEND TECHNOLOGIES
+--------------------------------------------------------
+• React.js: Core UI library for building the component-based dashboard.
+• Vite: Modern build tool and development server for high-speed HMR.
+• React Router: Declarative routing for navigating between HUD views and system modules.
+• react-globe.gl & Three.js: Used for the immersive 3D global visualization, markers, and tactical data arcs.
+• Leaflet & React-Leaflet: Used for the tactical 2D map views and situational regional monitoring.
+• Axios: For making asynchronous HTTP requests to the backend API.
+• CSS3 (Vanilla): Custom styling featuring:
+    - Glassmorphism (Backdrop-filters & Blur effects)
+    - Tactical Neon Aesthetics (Amber & Blue themes)
+    - CSS Variables (Global design tokens)
+    - Flexbox/Grid (Dynamic HUD layout)
+• YouTube IFrame Player API: Integration of live news broadcasts into the Satellite Downlink matrix.
+• date-fns: Lightweight library for handling UTC and local time formatting.
+
+2. BACKEND TECHNOLOGIES
+--------------------------------------------------------
+• Node.js: Scalable JavaScript runtime environment.
+• Express.js: Web framework for building the RESTful API.
+• MongoDB & Mongoose: NoSQL database and ODM for storing and retrieving ingested news data.
+• Groq Cloud API: Integration with high-performance LLMs (Llama 3.3-70B) for the "SENTINEL-7" AI analysis.
+• Cheerio: HTML parsing and web scraping library used for live finance surveillance and metal price tracking.
+• Axios (Server-side): For fetching data from external weather and news APIs.
+• Dotenv: Management of sensitive environment variables (API keys, DB URIs).
+• CORS: Middleware for cross-origin resource sharing.
+
+3. EXTERNAL APIs & SERVICES
+--------------------------------------------------------
+• Groq / Llama 3.3: Powers the SENTINEL-7 intelligence analyst for situational situational awareness.
+• Open-Meteo API: Provides real-time weather and climate data for global hotspots.
+• Google Finance / Live Markets: Sources for real-time market index and commodity price scraping.
+• YouTube Live: Reliable streams from international outlets like Al Jazeera, DW, Sky News, and BBC.
+• GeoJSON Sources: Used for rendering land boundaries and tactical zones on the globe and maps.
+
+4. DEVELOPMENT & DEVOPS
+--------------------------------------------------------
+• Nodemon: Monitor for any changes in source and automatically restart the server.
+• ESLint: Pluggable linting utility for JavaScript and React code quality.
+• Git: Version control system for project management.
+• NPM: Package manager for dependency handling.

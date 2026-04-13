@@ -1,0 +1,45 @@
+========================================================
+PROJECT CONTEXT: GLOBAL NEWS AI (WORLD MONITOR HUD)
+========================================================
+
+1. OVERVIEW
+--------------------------------------------------------
+Global News AI is a high-tech, interactive "Command Center" intelligence dashboard. It is designed to provide real-time surveillance of global geopolitical conflicts, cyber security threats, climate anomalies, airline intelligence, and financial market volatility. The interface mimics a military-grade Spec Ops HUD (Heads-Up Display) with a dark-mode, glassmorphism aesthetic overlaid on a global satellite map.
+
+The application uses a decoupled architecture:
+- Frontend: React (Vite)
+- Backend: Node.js / Express.js
+- Database: MongoDB (News storage)
+
+2. CORE COMPONENTS & WORKFLOW (FRONTEND)
+--------------------------------------------------------
+The UI is built using a modular component system located in `frontend/src/components`. The primary layout is managed in `Dashboard.jsx`:
+
+• Background Layer: 
+  - `MapView.jsx`: An interactive Leaflet-based global map visualizing conflict zones and threat coordinates.
+  - `MapLegend.jsx`: Decodes map symbols and alert levels.
+
+• Tactical HUD Layer:
+  - `HUDHeader.jsx`: High-level status (DEFCON level, UTC Time, System Integrity).
+  - `HUDSidebarLeft.jsx`: Tracks "Global Situations" including Active Kinetic Zones (Wars), Airline Intel (Airspace risks), and Cyber Threats.
+  - `HUDBottomPanel.jsx`: Contains the Live News Ticker, financial market impacts for "Market Giants", and the "Satellite Downlink" matrix.
+  - `SatelliteDownlink`: Displays 6+ simultaneous live news feeds from YouTube (Al Jazeera, BW, Sky News, etc.).
+
+• Interactivity Layer:
+  - `DetailModal.jsx`: All HUD snippets (Climate, Cyber, AI Insights) are interactive. Clicking them opens this modal to show deep-dive reports, technical metadata, and AI-generated narratives.
+
+3. DATA PIPELINE & INTELLIGENCE (BACKEND)
+--------------------------------------------------------
+The "brain" of the operation is `backend/controllers/hudDataController.js`. The `/api/hud/data` endpoint performs concurrent data gathering:
+
+1. Web Scraping: Uses Cheerio to scrape live financial indexes (e.g., NIFTY 50) from Google Finance to provide authentic market surveillance.
+2. Climate Monitoring: Integrates the Open-Meteo API to fetch genuine weather data for geopolitical hotspots (Washington DC, Tehran, Tel Aviv, Dubai).
+3. Hybrid Mock Engines: Combines real API data with realistic simulation logic to generate alerts (e.g., triggering "Extreme Heat" alerts if real temperatures exceed threshold).
+4. News Ingestion: Queries a MongoDB database via Mongoose to fetch the latest global news bulletins for the ticker.
+5. Threat Matrices: Generates realistic situational data for Cyber Attacks, Kinetic Conflict Zones (Ukraine, Israel/Gaza), and Airline Intelligence.
+
+4. SYSTEM ENTRY POINTS
+--------------------------------------------------------
+• UI Logic: `frontend/src/pages/Dashboard.jsx` and `styles.css`.
+• Data Logic: `backend/controllers/hudDataController.js`.
+• Run Command: Run `npm run dev` in both `/frontend` and `/backend` directories.

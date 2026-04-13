@@ -1,0 +1,20 @@
+{
+  "title": "News Schema",
+  "type": "object",
+  "properties": {
+    "title": { "type": "string" },
+    "description": { "type": "string" },
+    "content": { "type": "string" },
+    "source": { "type": "string" },
+    "url": { "type": "string" },
+    "imageUrl": { "type": "string" },
+    "publishedAt": { "type": "string", "format": "date-time" },
+    "prediction": { 
+      "type": "string", 
+      "enum": ["Real", "Fake", "Uncertain"] 
+    },
+    "confidenceScore": { "type": "number" },
+    "category": { "type": "string" }
+  },
+  "required": ["title", "url", "publishedAt"]
+}
