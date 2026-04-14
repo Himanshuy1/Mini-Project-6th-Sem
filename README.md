@@ -8,11 +8,19 @@
   <i>Real-time intelligence surveillance for the modern age.</i>
   <br><br>
 
-  [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+  [![License: Proprietary](https://img.shields.io/badge/License-Proprietary-red.svg)](LICENSE)
   [![Stack: MERN](https://img.shields.io/badge/Stack-MERN-blue.svg)](#technical-stack)
   [![AI: Sentinel--7](https://img.shields.io/badge/AI-Sentinel--7-orange.svg)](#intelligence--ai)
-  [![Build: Passing](https://img.shields.io/badge/Build-Passing-green.svg)]()
+  [![Access: View--Only](https://img.shields.io/badge/Access-View--Only-important.svg)]()
 </div>
+
+---
+
+> [!CAUTION]
+> ### 🛑 PROPRIETARY & CONFIDENTIAL
+> This repository is for **demonstration and portfolio viewing purposes only**. The source code, assets, and documentation are the exclusive property of [Himanshu](https://github.com/Himanshuy1). 
+> 
+> **Cloning, downloading, modifying, or reusing this code for any personal, commercial, or educational project is strictly prohibited** without express written permission. By viewing this repository, you agree to the terms listed in the [LICENSE](LICENSE).
 
 ---
 
@@ -99,6 +107,6 @@ The system's core intelligence, **SENTINEL-7**, performs concurrent data gatheri
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is **Proprietary**. All rights are reserved by the author. See the [LICENSE](LICENSE) file for the full legal text regarding usage restrictions.
 
 Developed as a **6th Semester Mini-Project** by [Himanshu](https://github.com/Himanshuy1).
