@@ -23,21 +23,31 @@ TECHNOLOGY STACK: GLOBAL NEWS AI (WORLD MONITOR HUD)
 • Node.js: Scalable JavaScript runtime environment.
 • Express.js: Web framework for building the RESTful API.
 • MongoDB & Mongoose: NoSQL database and ODM for storing and retrieving ingested news data.
+• Intel Cache Layer: Custom in-memory caching system with 3-minute TTL for high-frequency tactical data.
 • Groq Cloud API: Integration with high-performance LLMs (Llama 3.3-70B) for the "SENTINEL-7" AI analysis.
-• Cheerio: HTML parsing and web scraping library used for live finance surveillance and metal price tracking.
-• Axios (Server-side): For fetching data from external weather and news APIs.
+• Cheerio: HTML parsing and web scraping library for live finance and commodities surveillance.
+• Axios (Server-side): For fetching data from external APIs and security feeds.
 • Dotenv: Management of sensitive environment variables (API keys, DB URIs).
 • CORS: Middleware for cross-origin resource sharing.
 
 3. EXTERNAL APIs & SERVICES
 --------------------------------------------------------
-• Groq / Llama 3.3: Powers the SENTINEL-7 intelligence analyst for situational situational awareness.
+• Groq / Llama 3.3: Powers the SENTINEL-7 intelligence analyst for situational awareness.
+• GNews API: Primary news aggregator for situational situational news harvesting.
+• MalwareBazaar / Abuse.ch: Real-time Technical/IP-level cyber threat intelligence feed.
+• OpenSky Network: Public API for live aviation traffic and global flight status.
 • Open-Meteo API: Provides real-time weather and climate data for global hotspots.
-• Google Finance / Live Markets: Sources for real-time market index and commodity price scraping.
-• YouTube Live: Reliable streams from international outlets like Al Jazeera, DW, Sky News, and BBC.
-• GeoJSON Sources: Used for rendering land boundaries and tactical zones on the globe and maps.
+• Google Finance / COMEX / CPH: Real-time surveillance of Market Giants, Metals, and Maritime Logistics (Maersk/Hapag-Lloyd).
+• YouTube Live: Reliable streams from international outlets like Al Jazeera, DW, and Sky News.
+• GeoJSON Sources: Used for rendering land boundaries and tactical zones.
 
-4. DEVELOPMENT & DEVOPS
+4. ARCHITECTURAL PATTERNS
+--------------------------------------------------------
+• Tactical Intelligence Segmentation: Specialized matrices for World, Tech, and Finance domains.
+• Background Harvester: Autonomous background sync for multiple intelligence categories (Unicorns, Startups, Insurance Risk).
+• Fail-Safe Scrapers: Fault-tolerant parsing with fallback states for finance selectors.
+
+5. DEVELOPMENT & DEVOPS
 --------------------------------------------------------
 • Nodemon: Monitor for any changes in source and automatically restart the server.
 • ESLint: Pluggable linting utility for JavaScript and React code quality.

@@ -1,5 +1,6 @@
 import axios from 'axios';
 import * as cheerio from 'cheerio';
+import { fetchCombinedNews } from './newsFetcher.js';
 
 const USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36';
 
@@ -10,11 +11,27 @@ export const fetchFinanceData = async (ticker, exchange = 'NASDAQ') => {
     try {
         const url = `https://www.google.com/finance/quote/${ticker}:${exchange}`;
         console.log(`[HUD-SERVICE] Scraping: ${url}`);
-        const { data } = await axios.get(url, { headers: { 'User-Agent': USER_AGENT } });
+        const { data } = await axios.get(url, { 
+            headers: { 'User-Agent': USER_AGENT },
+            timeout: 5000 
+        });
         const $ = cheerio.load(data);
         
-        const price = $('.fxKbKc').first().text();
-        const change = $('.Nyd5ce').first().text();
+        // Use multiple selectors for price (Google Finance frequently rotates classes)
+        const priceSelectors = ['.fxKbKc', '.YMl77', 'div[data-last-price]', '.ln9Y9c'];
+        let price = '';
+        for (const s of priceSelectors) {
+            price = $(s).first().text();
+            if (price) break;
+        }
+
+        // Use multiple selectors for change
+        const changeSelectors = ['.Nyd5ce', '.Jw7VD', 'span[data-price-change]', '.P63Yec'];
+        let change = '';
+        for (const s of changeSelectors) {
+            change = $(s).first().text();
+            if (change) break;
+        }
         
         return {
             name: ticker,
@@ -35,12 +52,11 @@ export const fetchMetalPrices = async () => {
     const metals = [
         { ticker: 'GCW00', exchange: 'COMEX', name: 'GOLD' },
         { ticker: 'SIW00', exchange: 'COMEX', name: 'SILVER' },
-        { ticker: 'HG1:COMEX', exchange: '', name: 'COPPER' },
-        { ticker: 'PL:NYMEX', exchange: '', name: 'PLATINUM' }
+        { ticker: 'HGW00', exchange: 'COMEX', name: 'COPPER' },
+        { ticker: 'PLW00', exchange: 'NYMEX', name: 'PLATINUM' }
     ];
 
     return Promise.all(metals.map(async (m) => {
-        const tickerStr = m.exchange ? `${m.ticker}:${m.exchange}` : m.ticker;
         const data = await fetchFinanceData(m.ticker, m.exchange);
         return { ...data, name: m.name };
     }));
@@ -50,23 +66,76 @@ export const fetchMetalPrices = async () => {
  * Fetches Big Tech market giants.
  */
 export const fetchMarketGiants = async () => {
-    const giants = [
-        { ticker: 'GOOGL', exchange: 'NASDAQ', name: 'Alphabet Inc.' },
-        { ticker: 'AAPL', exchange: 'NASDAQ', name: 'Apple Inc.' },
-        { ticker: 'META', exchange: 'NASDAQ', name: 'Meta Platforms' },
-        { ticker: 'AMZN', exchange: 'NASDAQ', name: 'Amazon' },
-        { ticker: 'TSLA', exchange: 'NASDAQ', name: 'Tesla, Inc.' }
-    ];
+    try {
+        const giants = [
+            { ticker: 'MSFT', exchange: 'NASDAQ', name: 'Microsoft' },
+            { ticker: 'AAPL', exchange: 'NASDAQ', name: 'Apple Inc.' },
+            { ticker: 'NVDA', exchange: 'NASDAQ', name: 'NVIDIA' },
+            { ticker: 'GOOGL', exchange: 'NASDAQ', name: 'Alphabet' },
+            { ticker: 'AMZN', exchange: 'NASDAQ', name: 'Amazon' },
+            { ticker: 'META', exchange: 'NASDAQ', name: 'Meta' },
+            { ticker: 'TSLA', exchange: 'NASDAQ', name: 'Tesla' },
+            { ticker: 'NFLX', exchange: 'NASDAQ', name: 'Netflix' },
+            { ticker: 'AMD', exchange: 'NASDAQ', name: 'AMD' },
+            { ticker: 'INTC', exchange: 'NASDAQ', name: 'Intel' },
+            { ticker: 'ADBE', exchange: 'NASDAQ', name: 'Adobe' }
+        ];
 
-    return Promise.all(giants.map(async (g) => {
-        const data = await fetchFinanceData(g.ticker, g.exchange);
-        return { 
-            ticker: g.ticker, 
-            name: g.name, 
-            status: `${data.price} (${data.change})`,
-            impact: data.change.includes('-') ? 'Bearish Sentiment' : 'Market Resilience'
-        };
-    }));
+        return Promise.all(giants.map(async (g) => {
+            const data = await fetchFinanceData(g.ticker, g.exchange);
+            
+            // --- Enhanced Market Analysis Logic ---
+            const changeStr = data?.change || '0.00%';
+            const changeVal = parseFloat(changeStr.replace(/[+%]/g, '')) || 0;
+            let impact = "Market Stability";
+            
+            if (changeVal > 1.5) impact = "Strategic Dominance";
+            else if (changeVal > 0.5) impact = "Steady Influx";
+            else if (changeVal < -2.0) impact = "Sector Volatility";
+            else if (changeVal < -0.5) impact = "Bearish Sentiment";
+            else if (Math.abs(changeVal) < 0.1) impact = "Consolidation Phase";
+
+            return { 
+                ticker: g.ticker, 
+                name: g.name, 
+                status: `${data.price} (${changeStr})`,
+                impact: impact
+            };
+        }));
+    } catch (err) {
+        console.error("[HUD-SERVICE] Market Giants Error:", err.message);
+        return [];
+    }
+};
+
+/**
+ * Fetches Shipping Giants for Finance Monitor.
+ */
+export const fetchShippingStocks = async () => {
+    try {
+        const shipping = [
+            { ticker: 'MAERSK-B', exchange: 'CPH', name: 'A.P. Møller - Mærsk' },
+            { ticker: 'HLAG', exchange: 'ETR', name: 'Hapag-Lloyd' }
+        ];
+
+        return Promise.all(shipping.map(async (s) => {
+            try {
+                const data = await fetchFinanceData(s.ticker, s.exchange);
+                const changeStr = data?.change || '0.00%';
+                return {
+                    ticker: s.ticker,
+                    name: s.name,
+                    status: `${data.price} (${changeStr})`,
+                    impact: changeStr.includes('-') ? 'Supply Chain Pressure' : 'Logistics Resilience'
+                };
+            } catch (innerErr) {
+                return { ticker: s.ticker, name: s.name, status: "OFFLINE", impact: "Data Sync Failure" };
+            }
+        }));
+    } catch (err) {
+        console.error("[HUD-SERVICE] Shipping Stocks Master Error:", err.message);
+        return [];
+    }
 };
 
 /**
@@ -76,7 +145,7 @@ export const fetchAviationData = async () => {
     try {
         console.log(`[HUD-SERVICE] Fetching Aviation Data from OpenSky...`);
         // OpenSky API - simplified for current state of major hubs
-        const { data } = await axios.get('https://opensky-network.org/api/states/all', { timeout: 10000 });
+        const { data } = await axios.get('https://opensky-network.org/api/states/all', { timeout: 7000 });
         
         // This is a massive dataset, we'll just count flights in specific regions to simulate "Intelligence"
         const states = data.states || [];
@@ -100,48 +169,60 @@ export const fetchAviationData = async () => {
  */
 export const fetchCyberIncidents = async () => {
     try {
-        console.log(`[HUD-SERVICE] Fetching Cyber Incidents from MalwareBazaar...`);
-        // Using a public feed of recent malware reports (technical / IP level context)
-        const { data } = await axios.post('https://mb-api.abuse.ch/api/v1/', 'query=get_recent&selector=100', {
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-        });
+        console.log(`[HUD-SERVICE] Fetching Real-time Cyber News & Incidents (PARALLEL)...`);
+        
+        // Use Promise.allSettled to ensure one slow API doesn't kill the whole fetch
+        const [newsResults, techResults] = await Promise.allSettled([
+            // 1. Fetch Contextual Cyber News (State-sponsored focus)
+            fetchCombinedNews('cyber'),
+            
+            // 2. Fetch Technical Indicators (MalwareBazaar) with tight timeout
+            axios.post('https://mb-api.abuse.ch/api/v1/', 'query=get_recent&selector=50', {
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                timeout: 5000 // 5-second max wait for technical data
+            })
+        ]);
 
-        if (data.results && Array.isArray(data.results)) {
-            return data.results.slice(0, 15).map((item, idx) => {
-                // Since we don't have lat/lng in this feed, we simulate geocoding 
-                // for some common report origins or use random high-risk coordinates 
-                // to populate the globe with realistic "arcs".
-                const targets = [
-                    { name: 'Washington', lat: 38.8951, lon: -77.0364 },
-                    { name: 'London', lat: 51.5074, lon: -0.1278 },
-                    { name: 'Singapore', lat: 1.3521, lon: 103.8198 },
-                    { name: 'Frankfurt', lat: 50.1109, lon: 8.6821 }
-                ];
-                const origins = [
-                    { name: 'Source Alpha', lat: Math.random() * 40 + 20, lon: Math.random() * 40 + 30 },
-                    { name: 'Source Gamma', lat: Math.random() * 40 + 10, lon: Math.random() * 40 - 20 }
-                ];
-                
+        let newsIncidents = [];
+        if (newsResults.status === 'fulfilled' && Array.isArray(newsResults.value)) {
+            newsIncidents = newsResults.value.slice(0, 10).map(n => ({
+                target: n.title,
+                type: "STATE-SPONSORED ATTACK",
+                origin: n.source,
+                status: "ACTIVE INVESTIGATION",
+                severity: "CRITICAL",
+                lat: n.lat,
+                lon: n.lon,
+                originLat: n.lat + (Math.random() * 10 - 5), 
+                originLon: n.lon + (Math.random() * 10 - 5),
+                markerType: 'bug'
+            }));
+        }
+
+        let techIncidents = [];
+        if (techResults.status === 'fulfilled' && techResults.value.data?.results) {
+            const data = techResults.value.data;
+            techIncidents = data.results.slice(0, 10).map((item, idx) => {
+                const targets = [{ lat: 38.8951, lon: -77.0364 }, { lat: 51.5074, lon: -0.1278 }, { lat: 1.3521, lon: 103.8198 }];
                 const target = targets[idx % targets.length];
-                const origin = origins[idx % origins.length];
-
                 return {
-                    target: item.threat || "Unknown Threat",
-                    type: item.file_type || "Attack",
-                    origin: "Detected Node",
-                    status: "Mitigating",
+                    target: item.threat || "Malicious Payload",
+                    type: item.file_type || "Technical Alert",
+                    origin: "Automated Node",
+                    status: "Intercepted",
                     severity: "High",
                     lat: target.lat,
                     lon: target.lon,
-                    originLat: origin.lat,
-                    originLon: origin.lon,
+                    originLat: Math.random() * 40 + 20,
+                    originLon: Math.random() * 40 + 30,
                     markerType: 'shield'
                 };
             });
         }
-        return [];
+
+        return [...newsIncidents, ...techIncidents];
     } catch (err) {
-        console.error(`[HUD-SERVICE] Cyber API Error:`, err.message);
+        console.error(`[HUD-SERVICE] Cyber API Master Error:`, err.message);
         return [];
     }
 };

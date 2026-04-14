@@ -45,6 +45,28 @@ export const fetchCombinedNews = async (filter = 'general') => {
     if (isStockRequest) {
       url = 'https://gnews.io/api/v4/search';
       params.q = 'stock market OR finance OR economic';
+    } else if (filter === 'cyber' || filter === 'security') {
+      url = 'https://gnews.io/api/v4/search';
+      // Prioritize state-sponsored and high-impact national security incidents
+      params.q = '"state-sponsored" OR "government hack" OR "APT attack" OR "cyber warfare" OR "critical infrastructure hack" OR "data breach"';
+    } else if (filter === 'tech' || filter === 'technology' || filter === 'tech_breakthroughs') {
+      url = 'https://gnews.io/api/v4/search';
+      params.q = '"new technology" OR "innovation" OR "r&d breakthrough" OR semiconductors OR "artificial intelligence"';
+    } else if (filter === 'tech_startups') {
+      url = 'https://gnews.io/api/v4/search';
+      params.q = 'startups OR "early stage funding" OR "venture capital" OR "Y Combinator"';
+    } else if (filter === 'tech_unicorns') {
+      url = 'https://gnews.io/api/v4/search';
+      params.q = '"unicorn company" OR "billion dollar startup" OR "tech valuation" OR "IPO watch"';
+    } else if (filter === 'finance' || filter === 'stock' || filter === 'finance_global_econ') {
+      url = 'https://gnews.io/api/v4/search';
+      params.q = '"World Bank" OR IMF OR "World Economic Forum" OR "Global Economy" OR "federal reserve"';
+    } else if (filter === 'finance_shipping') {
+      url = 'https://gnews.io/api/v4/search';
+      params.q = 'Maersk OR "Hapag-Lloyd" OR "Evergreen shipping" OR "global freight rates" OR "maritime logistics"';
+    } else if (filter === 'finance_insurance') {
+      url = 'https://gnews.io/api/v4/search';
+      params.q = '"shipping insurance" OR "maritime risk" OR "P&I clubs" OR "war risk premium"';
     } else if (filter !== 'general' && filter !== 'all') {
       url = 'https://gnews.io/api/v4/search';
       // Combine user filter with priority sources for richer results

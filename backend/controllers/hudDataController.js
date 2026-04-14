@@ -1,6 +1,7 @@
 import axios from 'axios';
 import * as cheerio from 'cheerio';
 import News from '../models/News.js';
+import { fetchMarketGiants, fetchMetalPrices, fetchAviationData, fetchCyberIncidents, fetchShippingStocks } from '../services/hudService.js';
 
 // --- Global Cache for Live News Streams ---
 let liveVideosCache = {
@@ -88,38 +89,41 @@ export const getHudData = async (req, res) => {
 
         console.log("[HUD-CONTROLLER] Cache expired or empty. Fetching fresh data...");
 
-        // --- 0. Background News Refresh (Existing Logic) ---
+        // --- 0. Background News Refresh (Multi-Category) ---
         if (now - lastNewsRefresh > NEWS_REFRESH_INTERVAL) {
             import('../services/newsFetcher.js').then(async ({ fetchCombinedNews }) => {
-                fetchCombinedNews('general').then(async (articles) => {
-                    for (let a of articles) {
-                        const exists = await News.findOne({ url: a.url });
-                        if (!exists) await News.create({ ...a, prediction: 'Real', confidenceScore: 100, category: 'general' });
-                    }
-                    lastNewsRefresh = Date.now();
-                });
+                const categories = [
+                    'general', 'tech', 'finance', 
+                    'tech_breakthroughs', 'tech_startups', 'tech_unicorns',
+                    'finance_global_econ', 'finance_shipping', 'finance_insurance'
+                ];
+                for (const cat of categories) {
+                    fetchCombinedNews(cat).then(async (articles) => {
+                        for (let a of articles) {
+                            const exists = await News.findOne({ url: a.url });
+                            if (!exists) await News.create({ ...a, prediction: 'Real', confidenceScore: 100, category: cat });
+                        }
+                    }).catch(e => console.error(`[SYNC-ERROR] ${cat}:`, e.message));
+                }
+                lastNewsRefresh = Date.now();
             }).catch(e => console.error("News Provider Sync Error"));
         }
 
         // --- 1. Fetch Real-time Data via Service ---
-        const { 
-            fetchMarketGiants, 
-            fetchMetalPrices, 
-            fetchAviationData, 
-            fetchCyberIncidents 
-        } = await import('../services/hudService.js');
 
         const [
             marketGiants,
             metalPrices,
             airlineIntel,
             cyberAttacks,
+            shippingStocks,
             liveVideos
         ] = await Promise.all([
             fetchMarketGiants(),
             fetchMetalPrices(),
             fetchAviationData(),
             fetchCyberIncidents(),
+            fetchShippingStocks(),
             getLiveVideos()
         ]);
 
@@ -148,12 +152,23 @@ export const getHudData = async (req, res) => {
             { id: 1, name: "Ukraine (Donetsk Front)", lat: 48.0022, lon: 37.8045, severity: "Critical Alert", status: "High Intensity Kinetic Ops", defcon: 2, markerType: 'nuclear' },
             { id: 2, name: "Gaza Line", lat: 31.3547, lon: 34.3088, severity: "High Alert", status: "Active Siege/Urban Warfare", defcon: 3, markerType: 'nuclear' },
             { id: 3, name: "Israel-Lebanon Border", lat: 33.1054, lon: 35.5042, severity: "Critical Alert", status: "Missile Exchange / Cross-border", defcon: 2, markerType: 'nuclear' },
-            { id: 4, name: "Red Sea Corridor", lat: 20.0000, lon: 39.0000, severity: "High Alert", status: "Naval Surveillance Required", defcon: 3, markerType: 'fleet' }
+            { id: 4, name: "Red Sea Corridor", lat: 20.0000, lon: 39.0000, severity: "High Alert", status: "Naval Surveillance Required", defcon: 3, markerType: 'fleet' },
+            { id: 5, name: "Sudan (Khartoum)", lat: 15.5007, lon: 32.5599, severity: "Critical Alert", status: "Civil War / Rapid Support Forces", defcon: 3, markerType: 'base' },
+            { id: 6, name: "Taiwan Strait / Kinmen", lat: 24.4486, lon: 118.3719, severity: "Observation", status: "Grey Zone Tensions / Force Drills", defcon: 3, markerType: 'fleet' },
+            { id: 7, name: "Myanmar (Rakhine)", lat: 20.3000, lon: 93.6000, severity: "High Alert", status: "Civil Conflict / Anti-Junta Offensive", defcon: 4, markerType: 'base' },
+            { id: 8, name: "DR Congo (Goma)", lat: -1.6585, lon: 29.2230, severity: "Moderate Alert", status: "Rebel Offensive / UN Stabilization", defcon: 4, markerType: 'base' },
+            { id: 9, name: "Idlib, Syria", lat: 35.9333, lon: 36.6333, severity: "Monitoring", status: "Ongoing Civil proxy war", defcon: 4, markerType: 'base' },
+            { id: 10, name: "Korean DMZ", lat: 37.9561, lon: 126.6700, severity: "Precautionary", status: "Strategic Standalone / SIGINT Patrols", defcon: 3, markerType: 'shield' }
         ];
 
         let tickerNews = [];
-        const recent = await News.find().sort({ publishedAt: -1 }).limit(50);
-        tickerNews = recent.map(r => ({ title: r.title.toUpperCase(), source: r.source.toUpperCase(), url: r.url }));
+        const recent = await News.find().sort({ publishedAt: -1 }).limit(100);
+        tickerNews = recent.map(r => ({ 
+            title: r.title.toUpperCase(), 
+            source: r.source.toUpperCase(), 
+            url: r.url,
+            category: r.category || 'general'
+        }));
 
         const responseData = {
             warZones,
@@ -165,7 +180,8 @@ export const getHudData = async (req, res) => {
             cyberAttacks,
             globalDefcon: 3,
             tickerNews,
-            liveVideos
+            liveVideos,
+            shippingStocks
         };
 
         // Save to cache

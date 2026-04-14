@@ -12,11 +12,14 @@ import AirlineIntelPanel from '../components/AirlineIntelPanel';
 import DetailModal from '../components/DetailModal';
 import MapToggle from '../components/MapToggle';
 import GlobeView from '../components/GlobeView';
+import TechIntelligenceMatrix from '../components/TechIntelligenceMatrix';
+import FinanceIntelligenceMatrix from '../components/FinanceIntelligenceMatrix';
 
 const Dashboard = () => {
   const [hudData, setHudData] = useState(null);
   const [selectedDetail, setSelectedDetail] = useState(null);
   const [viewMode, setViewMode] = useState('2D');
+  const [activeTab, setActiveTab] = useState('world');
 
   useEffect(() => {
     // Fetch the live HUD data
@@ -59,7 +62,7 @@ const Dashboard = () => {
 
       {/* Layer 1: UI Overlays */}
       <div style={{ position: 'relative', width: '100%', zIndex: 10, pointerEvents: 'none' }}>
-        <HUDHeader data={hudData} onItemClick={setSelectedDetail} />
+        <HUDHeader data={hudData} onItemClick={setSelectedDetail} activeTab={activeTab} setActiveTab={setActiveTab} />
         
         {/* Fixed Left Sidebar */}
         <div style={{ position: 'fixed', top: '80px', left: 0, height: 'calc(100vh - 104px)', pointerEvents: 'auto', zIndex: 15 }}>
@@ -72,25 +75,38 @@ const Dashboard = () => {
           <div style={{ height: '75vh' }} />
 
           <div style={{ display: 'flex', flexDirection: 'column', width: '100%', minHeight: 'calc(100vh - 80px)', paddingBottom: '24px' }}>
-             {/* Primary Bottom HUD Section */}
+             {/* Primary Bottom HUD Section - Toggle between World/Finance and Tech specialized views */}
              <div style={{ display: 'flex', paddingRight: '12px' }}>
-                 <div style={{ flex: 1.5, pointerEvents: 'auto' }}>
-                    <HUDBottomPanel data={hudData} onItemClick={setSelectedDetail} />
-                 </div>
-                 <div style={{ width: '320px', display: 'flex', flexDirection: 'column', pointerEvents: 'auto', gap: '4px' }}>
-                    <ClimatePanel data={hudData} onItemClick={setSelectedDetail} />
-                 </div>
+                {activeTab === 'tech' ? (
+                  <div style={{ flex: 1, pointerEvents: 'auto' }}>
+                    <TechIntelligenceMatrix data={hudData} onItemClick={setSelectedDetail} />
+                  </div>
+                ) : activeTab === 'finance' ? (
+                  <div style={{ flex: 1, pointerEvents: 'auto' }}>
+                    <FinanceIntelligenceMatrix data={hudData} onItemClick={setSelectedDetail} />
+                  </div>
+                ) : (
+                  <>
+                    <div style={{ flex: 1.5, pointerEvents: 'auto' }}>
+                       <HUDBottomPanel data={hudData} onItemClick={setSelectedDetail} activeTab={activeTab} />
+                    </div>
+                    <div style={{ width: '320px', display: 'flex', flexDirection: 'column', pointerEvents: 'auto', gap: '4px' }}>
+                       <ClimatePanel data={hudData} onItemClick={setSelectedDetail} />
+                    </div>
+                  </>
+                )}
              </div>
 
-             {/* Secondary Intelligence Row */}
-             <div style={{ display: 'flex', paddingRight: '12px', marginTop: '16px', gap: '16px' }}>
-                <div style={{ flex: 1, pointerEvents: 'auto' }}>
-                    <MetalPricesPanel data={hudData} onItemClick={setSelectedDetail} />
-                </div>
-                <div style={{ flex: 1, pointerEvents: 'auto' }}>
-                    <AirlineIntelPanel data={hudData} onItemClick={setSelectedDetail} />
-                </div>
-             </div>
+             {activeTab === 'world' && (
+               <div style={{ display: 'flex', paddingRight: '12px', marginTop: '16px', gap: '16px' }}>
+                  <div style={{ flex: 1, pointerEvents: 'auto' }}>
+                      <MetalPricesPanel data={hudData} onItemClick={setSelectedDetail} />
+                  </div>
+                  <div style={{ flex: 1, pointerEvents: 'auto' }}>
+                      <AirlineIntelPanel data={hudData} onItemClick={setSelectedDetail} />
+                  </div>
+               </div>
+             )}
           </div>
         </div>
       </div>
