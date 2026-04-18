@@ -20,7 +20,7 @@
 > ### 🛑 PROPRIETARY & CONFIDENTIAL
 > This repository is for **demonstration and portfolio viewing purposes only**. The source code, assets, and documentation are the exclusive property of [Himanshu](https://github.com/Himanshuy1). 
 > 
-> **Cloning, downloading, modifying, or reusing this code for any personal, commercial, or educational project is strictly prohibited** without express written permission. By viewing this repository, you agree to the terms listed in the [LICENSE](LICENSE).
+> We kindly request that you refrain from cloning, downloading, modifying, or reusing this code for personal, commercial, or educational projects without express written permission. By viewing this repository, you agree to the terms listed in the [LICENSE](LICENSE).
 
 ---
 
