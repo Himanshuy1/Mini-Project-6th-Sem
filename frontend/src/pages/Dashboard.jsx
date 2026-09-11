@@ -5,7 +5,6 @@ import HUDSidebarLeft from '../components/HUDSidebarLeft';
 import HUDBottomPanel from '../components/HUDBottomPanel';
 import GrokChatbot from '../components/GrokChatbot';
 import MapLegend from '../components/MapLegend';
-import HUDFooter from '../components/HUDFooter';
 import ClimatePanel from '../components/ClimatePanel';
 import MetalPricesPanel from '../components/MetalPricesPanel';
 import AirlineIntelPanel from '../components/AirlineIntelPanel';
@@ -23,8 +22,9 @@ const Dashboard = () => {
 
   useEffect(() => {
     // Fetch the live HUD data
+    const API_BASE_URL = (import.meta.env?.VITE_API_BASE_URL || 'http://localhost:5000').replace(/\/$/, '');
     const fetchData = () => {
-        fetch('http://localhost:5000/api/hud/data')
+        fetch(`${API_BASE_URL}/api/hud/data`)
           .then(res => res.json())
           .then(json => {
             if (json.success) {
@@ -58,14 +58,13 @@ const Dashboard = () => {
 
       <MapToggle viewMode={viewMode} onViewModeChange={setViewMode} />
       <MapLegend />
-      <HUDFooter />
 
       {/* Layer 1: UI Overlays */}
       <div style={{ position: 'relative', width: '100%', zIndex: 10, pointerEvents: 'none' }}>
         <HUDHeader data={hudData} onItemClick={setSelectedDetail} activeTab={activeTab} setActiveTab={setActiveTab} />
         
         {/* Fixed Left Sidebar */}
-        <div style={{ position: 'fixed', top: '80px', left: 0, height: 'calc(100vh - 104px)', pointerEvents: 'auto', zIndex: 15 }}>
+        <div style={{ position: 'fixed', top: '80px', left: 0, height: 'calc(100vh - 80px)', pointerEvents: 'auto', zIndex: 15 }}>
           <HUDSidebarLeft data={hudData} onItemClick={setSelectedDetail} />
         </div>
 
@@ -74,7 +73,7 @@ const Dashboard = () => {
           {/* Spacer to expose map/globe at the top */}
           <div style={{ height: '75vh' }} />
 
-          <div style={{ display: 'flex', flexDirection: 'column', width: '100%', minHeight: 'calc(100vh - 80px)', paddingBottom: '24px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', width: '100%', minHeight: 'calc(100vh - 80px)', paddingBottom: '0px' }}>
              {/* Primary Bottom HUD Section - Toggle between World/Finance and Tech specialized views */}
              <div style={{ display: 'flex', paddingRight: '12px' }}>
                 {activeTab === 'tech' ? (

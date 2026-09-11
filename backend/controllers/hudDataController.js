@@ -93,7 +93,7 @@ export const getHudData = async (req, res) => {
         if (now - lastNewsRefresh > NEWS_REFRESH_INTERVAL) {
             import('../services/newsFetcher.js').then(async ({ fetchCombinedNews }) => {
                 const categories = [
-                    'general', 'tech', 'finance', 
+                    'general', 'tech', 'finance', 'cyber', 'security',
                     'tech_breakthroughs', 'tech_startups', 'tech_unicorns',
                     'finance_global_econ', 'finance_shipping', 'finance_insurance'
                 ];
@@ -101,7 +101,13 @@ export const getHudData = async (req, res) => {
                     fetchCombinedNews(cat).then(async (articles) => {
                         for (let a of articles) {
                             const exists = await News.findOne({ url: a.url });
-                            if (!exists) await News.create({ ...a, prediction: 'Real', confidenceScore: 100, category: cat });
+                            if (!exists) {
+                                await News.create({ ...a, prediction: 'Real', confidenceScore: 100, category: cat });
+                            } else if (exists.category === 'general' && cat !== 'general') {
+                                // Promote general news to specialized categories if found in targeted fetch
+                                exists.category = cat;
+                                await exists.save();
+                            }
                         }
                     }).catch(e => console.error(`[SYNC-ERROR] ${cat}:`, e.message));
                 }
@@ -158,7 +164,10 @@ export const getHudData = async (req, res) => {
             { id: 7, name: "Myanmar (Rakhine)", lat: 20.3000, lon: 93.6000, severity: "High Alert", status: "Civil Conflict / Anti-Junta Offensive", defcon: 4, markerType: 'base' },
             { id: 8, name: "DR Congo (Goma)", lat: -1.6585, lon: 29.2230, severity: "Moderate Alert", status: "Rebel Offensive / UN Stabilization", defcon: 4, markerType: 'base' },
             { id: 9, name: "Idlib, Syria", lat: 35.9333, lon: 36.6333, severity: "Monitoring", status: "Ongoing Civil proxy war", defcon: 4, markerType: 'base' },
-            { id: 10, name: "Korean DMZ", lat: 37.9561, lon: 126.6700, severity: "Precautionary", status: "Strategic Standalone / SIGINT Patrols", defcon: 3, markerType: 'shield' }
+            { id: 10, name: "Korean DMZ", lat: 37.9561, lon: 126.6700, severity: "Precautionary", status: "Strategic Standalone / SIGINT Patrols", defcon: 3, markerType: 'shield' },
+            { id: 11, name: "LoC (India-Pakistan)", lat: 34.0837, lon: 74.7973, severity: "High Alert", status: "Ceasefire Monitoring / Tactical Incursions", defcon: 3, markerType: 'base' },
+            { id: 12, name: "Strait of Hormuz", lat: 26.5775, lon: 56.2429, severity: "Critical Alert", status: "Maritime Chokepoint / Naval Stand-off", defcon: 2, markerType: 'fleet' },
+            { id: 13, name: "Iran Security Zone", lat: 35.6892, lon: 51.3890, severity: "Moderate Alert", status: "Internal Tensions / Regional Posturing", defcon: 3, markerType: 'shield' }
         ];
 
         let tickerNews = [];

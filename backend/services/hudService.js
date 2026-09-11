@@ -10,37 +10,72 @@ const USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36
 export const fetchFinanceData = async (ticker, exchange = 'NASDAQ') => {
     try {
         const url = `https://www.google.com/finance/quote/${ticker}:${exchange}`;
-        console.log(`[HUD-SERVICE] Scraping: ${url}`);
+        console.log(`[HUD-SERVICE] Survelience: ${url}`);
         const { data } = await axios.get(url, { 
             headers: { 'User-Agent': USER_AGENT },
-            timeout: 5000 
+            timeout: 8000 
         });
         const $ = cheerio.load(data);
         
-        // Use multiple selectors for price (Google Finance frequently rotates classes)
-        const priceSelectors = ['.fxKbKc', '.YMl77', 'div[data-last-price]', '.ln9Y9c'];
+        // --- 1. Attempt Selector-based extraction ---
+        const priceSelectors = ['.YMlKec.fxKb7e', '.fxKbKc', '.YMl77', 'div[data-last-price]', '.ln9Y9c'];
         let price = '';
         for (const s of priceSelectors) {
             price = $(s).first().text();
             if (price) break;
         }
 
-        // Use multiple selectors for change
-        const changeSelectors = ['.Nyd5ce', '.Jw7VD', 'span[data-price-change]', '.P63Yec'];
+        const changeSelectors = ['.P6K39c', '.J79p7c', '.Nyd5ce', '.Jw7VD', 'span[data-price-change]', '.P63Yec'];
         let change = '';
         for (const s of changeSelectors) {
             change = $(s).first().text();
             if (change) break;
         }
+
+        // --- 2. Fallback: Regex extraction from script data (Highly Robust) ---
+        if (!price || !change) {
+            console.log(`[HUD-SERVICE] Selectors failed for ${ticker}. Using regex harvest.`);
+            
+            // Pattern matches: [null,["TICKER","EXCH"]],null,PRICE,"/g/...",PREV_CLOSE,HIGH,LOW,?,ABS_CHANGE,?,PCT_CHANGE,?,CURRENCY
+            const tickerRegex = new RegExp(`\\[null,\\["${ticker}","${exchange}"\\]\\],null,([\\d.]+)`, 'i');
+            const priceMatch = data.match(tickerRegex);
+            if (priceMatch && !price) price = priceMatch[1];
+
+            // More flexible pattern for changes and currency
+            const fullPattern = new RegExp(`\\[null,\\["${ticker}","${exchange}"\\]\\],null,[\\d.]+,[^,]+,[\\d.]+,[\\d.]+,[\\d.]+,\\d+,([\\d.+-]+),\\d+,([\\d.+-]+),\\d+,"([^"]+)"`, 'i');
+            const fullMatch = data.match(fullPattern);
+            
+            if (fullMatch) {
+                const absChange = parseFloat(fullMatch[1]);
+                const pctChange = parseFloat(fullMatch[2]);
+                const currency = fullMatch[3];
+                const sign = absChange >= 0 ? '+' : '';
+                
+                change = `${sign}${pctChange.toFixed(2)}%`;
+                
+                // Set currency symbol
+                if (!price.startsWith('$') && !price.startsWith('₹')) {
+                    if (currency === 'USD') price = `$${price}`;
+                    else if (currency === 'INR') price = `₹${price}`;
+                    else price = `${price} ${currency}`;
+                }
+                console.log(`[HUD-SERVICE] Harvested ${ticker}: ${price} (${change})`);
+            }
+        }
         
+        // Final fallback for currency if regex failed to find it but found price
+        if (price && !price.startsWith('$') && !price.startsWith('₹')) {
+            if (exchange === 'NASDAQ' || exchange === 'COMEX' || exchange === 'NYMEX') price = `$${price}`;
+        }
+
         return {
             name: ticker,
-            price: price || 'N/A',
+            price: price || 'OFFLINE',
             change: change || '0.00%',
-            trend: change.includes('-') ? 'down' : 'up'
+            trend: (change && change.includes('-')) ? 'down' : 'up'
         };
     } catch (err) {
-        console.error(`[HUD-SERVICE] Error scraping ${ticker}:`, err.message);
+        console.error(`[HUD-SERVICE] Node Error ${ticker}:`, err.message);
         return { name: ticker, price: '---', change: '0.00%', trend: 'neutral' };
     }
 };

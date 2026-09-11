@@ -70,7 +70,7 @@ const HUDHeader = ({ data, onItemClick, activeTab, setActiveTab }) => {
         </div>
         
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginLeft: '20px' }}>
-          <span className="hud-text text-main" style={{ fontSize: '16px', fontWeight: 'bold', letterSpacing: '2px' }}>MONITOR</span>
+          <span className="hud-text text-main" style={{ fontSize: '16px', fontWeight: 'bold', letterSpacing: '2px' }}>WORLD MONITOR</span>
           <span style={{ color: 'var(--text-dim)', fontSize: '10px', fontFamily: 'var(--font-hud)' }}>v2.9.2</span>
           <span style={{ color: 'var(--text-neon-green)', fontSize: '10px', fontFamily: 'var(--font-hud)' }}>● LIVE DATA</span>
         </div>

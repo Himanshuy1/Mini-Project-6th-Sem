@@ -111,9 +111,18 @@ const HUDBottomPanel = ({ data, onItemClick, activeTab }) => {
   // 1. First filter by the Active HUD Tab (World/Tech/Finance)
   const categoryFilteredNews = ticker.filter(item => {
     if (typeof item === 'string') return activeTab === 'world';
-    const itemCat = item.category || 'general';
-    const activeCat = activeTab === 'world' ? 'general' : activeTab;
-    return itemCat === activeCat;
+    const itemCat = (item.category || 'general').toLowerCase();
+    
+    if (activeTab === 'world') {
+      return itemCat === 'general' || itemCat === 'cyber' || itemCat === 'security';
+    }
+    if (activeTab === 'tech') {
+      return itemCat === 'tech' || itemCat === 'technology' || itemCat === 'tech_breakthroughs' || itemCat === 'cyber' || itemCat === 'security';
+    }
+    if (activeTab === 'finance') {
+      return itemCat === 'finance' || itemCat.startsWith('finance_');
+    }
+    return itemCat === activeTab;
   });
 
   // 2. Then filter by the selected Source (DW/France24/etc)
