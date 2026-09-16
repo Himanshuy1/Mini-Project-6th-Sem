@@ -8,9 +8,13 @@ export const detectFakeNews = async (article) => {
       return { prediction: "Pending", confidenceScore: 0 };
     }
 
+    const isGroq = API_KEY.startsWith("gsk_");
+    const baseURL = isGroq ? "https://api.groq.com/openai/v1" : "https://api.x.ai/v1";
+    const modelName = isGroq ? "llama-3.3-70b-versatile" : "grok-beta";
+
     const openai = new OpenAI({
       apiKey: API_KEY,
-      baseURL: "https://api.x.ai/v1",
+      baseURL: baseURL,
     });
 
     const prompt = `You are a professional fake news detection system.
@@ -40,7 +44,7 @@ Article Description: ${article.description || article.content}
 Article Source: ${article.source}`;
 
     const response = await openai.chat.completions.create({
-      model: "grok-beta",
+      model: modelName,
       messages: [{ role: "user", content: prompt }],
       temperature: 0.1,
     });
@@ -82,7 +86,10 @@ export const verifyManualContent = async ({ textContent, base64Image }) => {
     const API_KEY = process.env.GROK_API_KEY;
     if (!API_KEY) return { prediction: "Uncertain", confidenceScore: 0, reason: "No API Key configuration found." };
     
-    const openai = new OpenAI({ apiKey: API_KEY, baseURL: "https://api.x.ai/v1" });
+    const isGroq = API_KEY.startsWith("gsk_");
+    const baseURL = isGroq ? "https://api.groq.com/openai/v1" : "https://api.x.ai/v1";
+    
+    const openai = new OpenAI({ apiKey: API_KEY, baseURL: baseURL });
     
     let messages = [];
     const systemPrompt = `You are a professional fake news detection system.
@@ -117,8 +124,12 @@ Return output in JSON format only:
       ];
     }
 
+    const modelName = isGroq 
+      ? (base64Image ? "llama-3.2-11b-vision-preview" : "llama-3.3-70b-versatile") 
+      : (base64Image ? "grok-vision-beta" : "grok-beta");
+
     const response = await openai.chat.completions.create({
-      model: base64Image ? "grok-vision-beta" : "grok-beta",
+      model: modelName,
       messages: messages,
       temperature: 0.1,
     });
