@@ -10,10 +10,23 @@ const connectDB = async () => {
     console.log('URI length:', uri?.length);
     console.log('------------------------------');
 
-    const conn = await mongoose.connect(uri || 'mongodb://127.0.0.1:27017/global_news_ai');
-    console.log(`MongoDB Connected: ${conn.connection.host}`);
+    if (!uri) {
+      console.error('[DB] FATAL: No MongoDB URI found in environment variables.');
+      console.error('[DB] Please set MONGO_URI or MONGODB_URI in your Render environment variables.');
+      process.exit(1);
+    }
+
+    mongoose.set('strictQuery', false);
+
+    const conn = await mongoose.connect(uri, {
+      serverSelectionTimeoutMS: 10000, // Fail fast (10s) instead of hanging for 30s
+      socketTimeoutMS: 45000,
+    });
+
+    console.log(`[DB] MongoDB Connected: ${conn.connection.host}`);
   } catch (error) {
-    console.error(`Error: ${error.message}`);
+    console.error(`[DB] Connection Error: ${error.message}`);
+    console.error('[DB] Full error:', error);
     process.exit(1);
   }
 };

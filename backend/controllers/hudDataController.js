@@ -173,8 +173,8 @@ export const getHudData = async (req, res) => {
         let tickerNews = [];
         const recent = await News.find().sort({ publishedAt: -1 }).limit(100);
         tickerNews = recent.map(r => ({ 
-            title: r.title.toUpperCase(), 
-            source: r.source.toUpperCase(), 
+            title: r.title?.toUpperCase() || '', 
+            source: (r.source || 'UNKNOWN').toUpperCase(), 
             url: r.url,
             category: r.category || 'general'
         }));
